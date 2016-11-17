@@ -34,6 +34,29 @@ SDL_Rect rcSrc,rcWall,rcWall2, rcBloc, rcSprite,rcG1, rcSG1, rcG2,rcG3,rcSG2, rc
 		//rcSG1 -> ghost param image
 
 int a;
+
+int pos_Wall[NY][NX]= {
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,4,0,4,0,4,0,4,0,4,0,4,1,0,4,0,4,0,4,0,4,0,4,1},
+  {1,0,1,1,0,1,1,1,1,1,1,4,1,4,1,1,1,1,1,0,1,1,0,1},
+  {1,4,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,1,4,1},
+  {1,0,0,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,0,1},
+  {1,4,1,1,0,1,1,1,1,1,1,4,1,4,1,1,1,1,1,0,1,1,4,1},
+  {1,0,1,1,4,0,4,0,4,0,1,0,1,0,1,4,0,4,0,4,1,1,0,1},
+  {1,4,0,1,0,1,3,1,0,4,0,4,0,4,0,4,1,3,1,0,1,0,4,1},
+  {1,1,0,1,4,1,4,1,4,0,1,1,0,1,1,0,1,4,1,0,1,0,1,1},
+  {0,4,0,4,0,4,0,4,0,4,1,0,0,0,1,4,0,4,0,4,0,4,0,4},
+  {1,1,0,1,4,1,1,1,0,0,1,1,1,1,1,0,1,1,1,0,1,0,1,1},
+  {1,4,0,1,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,1,4,0,1},
+  {1,0,1,1,4,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,4,1},
+  {1,4,1,1,0,1,4,0,4,0,4,0,4,0,4,0,4,0,1,4,1,1,0,1},
+  {1,0,1,1,4,1,0,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,4,1},
+  {1,4,0,4,0,4,0,4,0,4,0,4,1,4,0,4,0,4,0,4,0,4,0,1},
+  {1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,4,1},
+  {1,4,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,1},
+  {1,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
+
 int Convertir(float nb)
 {
 	nb += 0.5;
@@ -53,6 +76,8 @@ unsigned char blue(Uint32 color) {
 unsigned char red(Uint32 color) {
 	return (color & (255*256*256))/(256*256);
 }
+
+
 
 
 
@@ -241,13 +266,18 @@ void HandleMovements()
         currentTime = SDL_GetTicks();
          if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.y -= 1;
-	   if ( rcSprite.y ==  0 )
-	      {
+	     if ( rcSprite.y ==  0 )
+	    // if ( (pos_Wall[(rcSprite.x)/32][(rcSprite.y)/32] == 1) || (pos_Wall[(rcSprite.x)/32][(rcSprite.y)/32] == 4)) 
+	       /*si on mets l'autre if pas de bug mais bloque pas les murs ici le if bloque quelques murs mais beug certains endroits, il est en de meme pour les autres */ 
+	      
+		*/
+		 {
         
 		moveUp = 0;
 		moveDown = 1;
 	      }
 
+	       
 	    	rcSG2.y = 4 * G1_HEIGHT;
 			rcSG2.x = G1_WIDTH;
 			if ( rcSG2.x >= G1_WIDTH) {
@@ -263,13 +293,13 @@ void HandleMovements()
     }
 
     if(moveDown){
-       
 	 
 	 currentTime = SDL_GetTicks();
 	 if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
 	   rcSprite.y += 1;
 	    
-	   if ( rcSprite.y ==  600 )
+	     if ( rcSprite.y ==  600 )
+	       // if ( (pos_Wall[(rcSprite.x)/32][(rcSprite.y)/32] == 1) || (pos_Wall[(rcSprite.x)/32][(rcSprite.y)/32] == 4)) 
 	      {
         
 		moveDown = 0;
@@ -290,16 +320,21 @@ void HandleMovements()
         HandleAnimations();
 	
     }
+
     if(moveLeft){
         currentTime = SDL_GetTicks();
         if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.x -= 1;
-
-	       if ( rcSprite.x ==  0 )
-	      {
+	     if ( (rcSprite.x ==  0) && (rcSprite.y != 300))
+	       // if ( (pos_Wall[(rcSprite.x)/32][(rcSprite.y)/32] == 1) || (pos_Wall[(rcSprite.x)/32][(rcSprite.y)/32] == 4)) 
+	     
+	    {
+        
 		moveLeft = 0;
 		moveRight = 1;
+	      
 	      }
+	      
 
 	    rcG1.y += 5;
 	    rcG2.x -= 5;
@@ -308,13 +343,15 @@ void HandleMovements()
          }
          HandleAnimations();
     }
+
     if(moveRight){
         currentTime = SDL_GetTicks();
         if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.x += 1;
 
 	     if ( rcSprite.x ==  720 )
-	      {
+	       // if ( (pos_Wall[(rcSprite.x)/32][(rcSprite.y)/32] == 1) || (pos_Wall[(rcSprite.x)/32][(rcSprite.y)/32] == 4))   
+	    {
 
 
 		moveRight = 0;
@@ -391,7 +428,7 @@ int main(int argc, char* argv[])
 	SDL_Surface *screen, *temp, *wall, *wall2, *bloc, *sprite, *g1, *g2, *g3, *candy;// *candy2, *candy3, *candy4,
 	SDL_Rect rcmap;
 	int colorkey;
-	int i,j;
+	int i,j,l,k;
 
 	/*rcBloc.h = 32;
 	rcBloc.w = 32;
@@ -561,7 +598,7 @@ int main(int argc, char* argv[])
 
 	gameover = 0;
 
-
+	/*
 	int pos_Wall[NY][NX]= {
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 	{1,4,0,4,0,4,0,4,0,4,0,4,1,0,4,0,4,0,4,0,4,0,4,1},
@@ -582,7 +619,7 @@ int main(int argc, char* argv[])
 	{1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,4,1},
 	{1,4,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,1},
 	{1,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,1},
-	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
+	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};*/
 
 	//putpixel( 5 ,5, SDL_MapRGB(map->format,0,128,0));
 	//putpixel( 5 ,5, (255*256*256)+255*256);
@@ -594,6 +631,11 @@ int main(int argc, char* argv[])
 		SDL_Event event;
 
 		if (move) {
+  
+		  
+		      
+		   
+
 			printf("le pacman bouge \n");
 			//SDL_FillRect(candy2, NULL , SDL_MapRGB(candy2->format,0,0,0));
         		
@@ -645,6 +687,9 @@ int main(int argc, char* argv[])
 				rcBloc.x = j * 32;
 				rcBloc.y = i * 32;
 				SDL_BlitSurface(bloc, NULL, screen, &rcBloc);
+		
+		        
+				
 			}
 			if ( pos_Wall[i][j] == 2){
 				rcWall.x = j * 32;
@@ -670,6 +715,8 @@ int main(int argc, char* argv[])
 			}*/
 		}
 	}
+
+
 
 
 	/*for (i=0; i< NY;i++){
