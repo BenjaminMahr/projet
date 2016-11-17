@@ -241,6 +241,12 @@ void HandleMovements()
         currentTime = SDL_GetTicks();
          if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.y -= 1;
+	   if ( rcSprite.y ==  0 )
+	      {
+        
+		moveUp = 0;
+		moveDown = 1;
+	      }
 
 	    	rcSG2.y = 4 * G1_HEIGHT;
 			rcSG2.x = G1_WIDTH;
@@ -254,11 +260,23 @@ void HandleMovements()
             previousTime = currentTime;
          }
          HandleAnimations();
-		}
+    }
+
     if(moveDown){
-        currentTime = SDL_GetTicks();
-        if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
-            rcSprite.y += 1;
+       
+	 
+	 currentTime = SDL_GetTicks();
+	 if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
+	   rcSprite.y += 1;
+	    
+	   if ( rcSprite.y ==  600 )
+	      {
+        
+		moveDown = 0;
+		moveUp = 1;
+	      }
+
+	   
 	    	rcSG3.y = 4 * G1_HEIGHT;
 		rcSG3.x = G1_WIDTH;
 		if ( rcSG3.x >= G1_WIDTH) {
@@ -270,11 +288,19 @@ void HandleMovements()
             previousTime = currentTime;
          }
         HandleAnimations();
+	
     }
     if(moveLeft){
         currentTime = SDL_GetTicks();
         if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.x -= 1;
+
+	       if ( rcSprite.x ==  0 )
+	      {
+		moveLeft = 0;
+		moveRight = 1;
+	      }
+
 	    rcG1.y += 5;
 	    rcG2.x -= 5;
 	    rcG3.x += 5;
@@ -286,6 +312,15 @@ void HandleMovements()
         currentTime = SDL_GetTicks();
         if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.x += 1;
+
+	     if ( rcSprite.x ==  720 )
+	      {
+
+
+		moveRight = 0;
+		moveLeft = 1;
+	      }
+
 	    rcSG1.y = 4 * G1_HEIGHT;
 	    rcSG1.x = G1_WIDTH;
 	    if ( rcSG1.x >= G1_WIDTH) {
@@ -561,12 +596,7 @@ int main(int argc, char* argv[])
 		if (move) {
 			printf("le pacman bouge \n");
 			//SDL_FillRect(candy2, NULL , SDL_MapRGB(candy2->format,0,0,0));
-
-		        
-		
-	        
-        
-		
+        		
 		
 		
 		if ( (rcG1.x == rcSprite.x) && (rcG1.y == rcSprite.y) || (rcG2.x == rcSprite.x) && (rcG2.y == rcSprite.y)  || (rcG3.x == rcSprite.x) && (rcG3.y == rcSprite.y)  ) {
