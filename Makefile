@@ -1,4 +1,3 @@
-
 SYSCONF_LINK = gcc
 CPPFLAGS     = `sdl-config --cflags` -std=c99 -Wall -Wextra -g 
 LDFLAGS      =
@@ -6,7 +5,6 @@ LIBS         =  `sdl-config --libs` -lm
 
 DESTDIR = ./
 TARGET  = pacman
-
 
 OBJECTS := $(addprefix $(DESTDIR),$(patsubst %.c,%.o,$(wildcard *.c)))
 

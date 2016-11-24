@@ -20,7 +20,8 @@
 #define COL 24
 #define LIG 20
 #define TIME_BTW_ANIMATIONS 40
-#define TIME_BTW_MOVEMENTS 5
+//#define TIME_BTW_MOVEMENTS 10
+int TIME_BTW_MOVEMENTS = 5 ;
 #define taille 31
 
 int gameover;
@@ -31,7 +32,7 @@ int currentTimeAnim, previousTimeAnim; //gerer le temps entre les animations
 float x,y;
 
 /* source and destination rectangles */
-SDL_Rect rcSrc,rcWall,rcWall2, rcBloc, rcSprite,rcG1, rcSG1, rcG2,rcG3, rcCandy;
+SDL_Rect rcSrc,rcWall,rcWall2, rcBloc, rcSprite,rcG1, rcSG1, rcG2,rcG3, rcCandy, rcCandy2;
 int i,j;
 
 //musMix_Music *music,*start, *scream;
@@ -55,9 +56,9 @@ void deplacement(SDL_Rect *fant, int x, int y){
 
 liste_point deplacementFantome (liste_point L, SDL_Rect *fant) {
 	if (!est_vide(L)){
-		printf("fant.y: %d, fant.y/32: %d,fant.x: %d, fant.x/32: %d,, prem.y: %d, prem.x: %d\n",fant->y,(fant->y/32),fant->x,((fant->x)/32),prem(L).y,prem(L).x);
+		//printf("fant.y: %d, fant.y/32: %d,fant.x: %d, fant.x/32: %d,, prem.y: %d, prem.x: %d\n",fant->y,(fant->y/32),fant->x,((fant->x)/32),prem(L).y,prem(L).x);
 		if (prem(L).x == (fant->x / taille) + 1) { // droite
-			printf("droite\n");
+			//printf("DROITE\n");
 			deplacement(fant,1,0);
 			if (((fant->x)/32) == prem(L).x) {
 				//m = fant.x/32;
@@ -66,7 +67,7 @@ liste_point deplacementFantome (liste_point L, SDL_Rect *fant) {
 			}
 		}
 		if (prem(L).x == (fant->x / taille) - 1) { // gauche
-			printf("GAUCHE\n");
+			//printf("GAUCHE\n");
 			deplacement(fant,-1,0);
 			if (((fant->x)/32) == prem(L).x) {
 				L = reste(L);
@@ -75,7 +76,7 @@ liste_point deplacementFantome (liste_point L, SDL_Rect *fant) {
 			
 		}
 		if (prem(L).y == (fant->y / taille) + 1) {	//bas
-			printf("BAS\n");
+			//printf("BAS\n");
 			deplacement(fant,0,1);
 			if (((fant->y)/32) == prem(L).y) {
 				L = reste(L);
@@ -84,7 +85,7 @@ liste_point deplacementFantome (liste_point L, SDL_Rect *fant) {
 			
 		}
 		if (prem(L).y == (fant->y / taille) - 1) { // haut
-			printf("haut\n");
+			//printf("HAUT\n");
 			deplacement(fant,0,-1);
 			if (((fant->y)/32) == prem(L).y) {
 				L = reste(L);
@@ -185,7 +186,7 @@ liste_point pathfinding(int map[NY][NX],int dy, int dx, int fy, int fx)
 	
 	
 	LF = reste(LF); // supprime le premier element, car on deja dessus
-	afficher_point_liste(LF);
+	//afficher_point_liste(LF);
 	return LF;
 }
 
@@ -236,7 +237,6 @@ void HandleEvent(SDL_Surface *map, SDL_Event event)
 				 	
 					move = 1;			
 					break;
-
 				case SDLK_RIGHT:
 
 				    if(moveUp){
@@ -252,7 +252,6 @@ void HandleEvent(SDL_Surface *map, SDL_Event event)
 					move = 1;
 				 
 					break;
-
 				case SDLK_UP:
 
 				    if(moveLeft){
@@ -268,7 +267,6 @@ void HandleEvent(SDL_Surface *map, SDL_Event event)
 					move = 1;
 				
 					break;
-
 				case SDLK_DOWN:
 
 				    if(moveUp){
@@ -285,7 +283,7 @@ void HandleEvent(SDL_Surface *map, SDL_Event event)
 				
 					break;
 
-				/*case SDLK_w:	// LEFT
+					/*	case SDLK_w:	// LEFT
 					move=1;
 					rcSG1.y = 0;
 					rcSG1.x = rcSG1.x - 32;
@@ -352,7 +350,7 @@ void HandleMovements(int pos_Wall[NY][NX])
 	int n2 = ((rcSprite.x+31)/32);
 	int m2 = ((rcSprite.y-1)/32);
 
-	if ((pos_Wall[m][n] == 0 || pos_Wall[m][n] == 4) && (pos_Wall[m2][n2] == 0 || pos_Wall[m2][n2] == 4)){
+	if ((pos_Wall[m][n] == 0 || pos_Wall[m][n] == 4 || pos_Wall[m][n] == 6) && (pos_Wall[m2][n2] == 0 || pos_Wall[m2][n2] == 4 || pos_Wall[m2][n2] == 6)){
         currentTime = SDL_GetTicks();
          if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.y -= 1;
@@ -368,7 +366,7 @@ void HandleMovements(int pos_Wall[NY][NX])
 	int n2 = ((rcSprite.x+31)/32);
 	int m2 = ((rcSprite.y+31+1)/32);
 
-	if ((pos_Wall[m][n] == 0 || pos_Wall[m][n] == 4) && (pos_Wall[m2][n2] == 0 || pos_Wall[m2][n2] == 4)){
+	if ((pos_Wall[m][n] == 0 || pos_Wall[m][n] == 4|| pos_Wall[m2][n2] == 6) && (pos_Wall[m2][n2] == 0 || pos_Wall[m2][n2] == 4 || pos_Wall[m2][n2] == 6)){
         currentTime = SDL_GetTicks();
         if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.y += 1;
@@ -383,7 +381,7 @@ void HandleMovements(int pos_Wall[NY][NX])
 
 	int n2 = ((rcSprite.x-1)/32);
 	int m2 = ((rcSprite.y+31)/32);
-	if ((pos_Wall[m][n] == 0 || pos_Wall[m][n] == 4) && (pos_Wall[m2][n2] == 0 || pos_Wall[m2][n2] == 4)){
+	if ((pos_Wall[m][n] == 0 || pos_Wall[m][n] == 4 || pos_Wall[m2][n2] == 6) && (pos_Wall[m2][n2] == 0 || pos_Wall[m2][n2] == 4 || pos_Wall[m2][n2] == 6)){
         currentTime = SDL_GetTicks();
         if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.x -= 1;
@@ -393,14 +391,14 @@ void HandleMovements(int pos_Wall[NY][NX])
     }
 	}
     if(moveRight){
-	int n = ((rcSprite.x+1)/32);
+	int n = ((rcSprite.x+31+1)/32);
 	int m = ((rcSprite.y)/32);
 
 	int n2 = ((rcSprite.x+31+1)/32);
 	int m2 = ((rcSprite.y+31)/32);
 
 	//printf("pos_Wall[%d][%d] = %d, pos_Wall2[%d][%d] = %d\n",m,n,pos_Wall[m][n],m2,n2,pos_Wall[m2][n2]);
-	if ((pos_Wall[m][n] == 0 || pos_Wall[m][n] == 4) && (pos_Wall[m2][n2] == 0 || pos_Wall[m2][n2] == 4)){
+	if ((pos_Wall[m][n] == 0 || pos_Wall[m][n] == 4 || pos_Wall[m2][n2] == 6) && (pos_Wall[m2][n2] == 0 || pos_Wall[m2][n2] == 4 || pos_Wall[m2][n2] == 6)){
         currentTime = SDL_GetTicks();
         if(currentTime - previousTime > TIME_BTW_MOVEMENTS){
             rcSprite.x += 1;
@@ -410,6 +408,7 @@ void HandleMovements(int pos_Wall[NY][NX])
     }
 	}
 }
+
 void HandleAnimations()
 {
     if(moveUp){
@@ -461,14 +460,16 @@ void HandleAnimations()
     }
 }
 
-int main(int argc, char* argv[])
+int main()
 {
-	SDL_Surface *screen, *map, *temp, *wall, *wall2, *bloc, *sprite, *g1, *g2, *g3, *candy, *menu, *gover;
+	SDL_Surface *screen, *map, *temp, *wall, *wall2, *bloc, *sprite, *g1, *g2, *g3, *candy, *candy2, *menu, *gover;
 	SDL_Rect rcmap;
 	int colorkey;
 	int i,j;
 	liste_point liste_coord;
-	int ccl = 0;
+
+	int lives = 1 ;
+
 	
 
 
@@ -479,16 +480,16 @@ int main(int argc, char* argv[])
 	SDL_Init(SDL_INIT_VIDEO);
 	 /* initialize SDL */
    	//mus SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    	//mus Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);  
+    	 //musMix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024);  
     	//mus Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
     	//mus music = Mix_LoadMUS("sons/point.mp3");
 	//mus start = Mix_LoadMUS("sons/start.mp3");
     	//mus scream = Mix_LoadMUS("scream.wav");
 
-	//mus if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1){
+	//musif(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1){
 	//mus	printf("%s", Mix_GetError());
-	//mus }
-	//mus Mix_PlayMusic(start, 1);
+	//mus}
+	//musMix_PlayMusic(start, 1);
 
 	/* set the title bar */
 	SDL_WM_SetCaption("Pacman", "Pacman");
@@ -500,17 +501,15 @@ int main(int argc, char* argv[])
 	SDL_EnableKeyRepeat(30,30);
 
  	/*load menu */ 
- 	temp=SDL_LoadBMP("images/1.bmp");
+ 	 temp=SDL_LoadBMP("images/1.bmp");
  	menu= SDL_DisplayFormat(temp);
- 	SDL_FreeSurface(temp);
+ 	 SDL_FreeSurface(temp);
 
 	/* load sprite */
 	temp   = SDL_LoadBMP("images/pacmanf_modif.bmp");
 	sprite = SDL_DisplayFormat(temp);
 	SDL_FreeSurface(temp);
-	
-	
-/* setup sprite colorkey and turn on RLE*/
+	/* setup sprite colorkey and turn on RLE*/
 	colorkey = SDL_MapRGB(screen->format, 0,0,0);
 	SDL_SetColorKey(sprite, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
 
@@ -539,6 +538,11 @@ int main(int argc, char* argv[])
 	temp   = SDL_LoadBMP("images/bonbon.bmp");
 	candy = SDL_DisplayFormat(temp);
 	SDL_FreeSurface(temp);
+	
+	/* load candy special */
+	temp   = SDL_LoadBMP("images/bonbon2.bmp");
+	candy2 = SDL_DisplayFormat(temp);
+	SDL_FreeSurface(temp);
 
 	/* load G1 */
 	temp   = SDL_LoadBMP("images/g1_f.bmp");
@@ -551,7 +555,7 @@ int main(int argc, char* argv[])
 
 
 	/* load g2 */
-	temp   = SDL_LoadBMP("images/g2.bmp");
+	temp   = SDL_LoadBMP("images/g2_f.bmp");
 	g2 = SDL_DisplayFormat(temp);
 	SDL_FreeSurface(temp);
 
@@ -561,7 +565,7 @@ int main(int argc, char* argv[])
 
 
 	/* load g3 */
-	temp   = SDL_LoadBMP("images/g3.bmp");
+	temp   = SDL_LoadBMP("images/g3_f.bmp");
 	g3 = SDL_DisplayFormat(temp);
 	SDL_FreeSurface(temp);
 
@@ -618,16 +622,16 @@ int main(int argc, char* argv[])
 
 	int pos_Wall[NY][NX]= {
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-	{1,4,0,4,0,4,0,4,0,4,0,4,1,0,4,0,4,0,4,0,4,0,4,1},
+	{1,6,0,4,0,4,0,4,0,4,0,4,1,0,4,0,4,0,4,0,4,0,6,1},
 	{1,0,1,1,0,1,1,1,1,1,1,4,1,4,1,1,1,1,1,0,1,1,0,1},
 	{1,4,1,1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,1,4,1},
 	{1,0,0,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,0,1},
 	{1,4,1,1,0,1,1,1,1,1,1,4,1,4,1,1,1,1,1,0,1,1,4,1},
 	{1,0,1,1,4,0,4,0,4,0,1,0,1,0,1,4,0,4,0,4,1,1,0,1},
 	{1,4,0,1,0,1,3,1,0,4,0,4,0,4,0,4,1,3,1,0,1,0,4,1},
-	{1,1,0,1,4,1,4,1,4,0,0,0,5,1,1,0,1,4,1,0,1,0,1,1},
-	{0,4,0,4,0,4,0,4,0,4,0,5,5,5,1,4,0,4,0,4,0,4,0,4},
-	{1,1,0,1,4,1,1,1,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,1},
+	{1,1,0,1,4,1,4,1,4,0,1,1,5,1,1,0,1,4,1,0,1,0,1,1},
+	{0,4,0,4,0,4,0,4,0,4,1,5,5,5,1,4,0,4,0,4,0,4,0,4},
+	{1,1,0,1,4,1,1,1,0,0,1,1,1,1,1,0,1,1,1,0,1,0,1,1},
 	{1,4,0,1,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,1,4,0,1},
 	{1,0,1,1,4,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,4,1},
 	{1,4,1,1,0,1,4,0,4,0,4,0,4,0,4,0,4,0,1,4,1,1,0,1},
@@ -635,7 +639,7 @@ int main(int argc, char* argv[])
 	{1,4,0,4,0,4,0,4,0,4,0,4,1,4,0,4,0,4,0,4,0,4,0,1},
 	{1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,4,1},
 	{1,4,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,1},
-	{1,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,1},
+	{1,0,6,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,4,0,6,1},
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
 	
 
@@ -677,6 +681,8 @@ int main(int argc, char* argv[])
 	
 	int cpt=0;
 	int n,m;
+	int a,b;
+	int c,d;
 	int test;
 
 	//musSDL_BlitSurface(menu,NULL,screen,NULL);
@@ -687,9 +693,11 @@ int main(int argc, char* argv[])
 	while (!gameover)
 {		
 		
-	int a,b;
+
 	b = (rcG1.x+16)/32;
 	a = (rcG1.y+16)/32;
+	d = (rcG2.x+16)/32;
+	c = (rcG2.y+16)/32;
 	
 	n = ((rcSprite.x+16)/32);
 	m = ((rcSprite.y+16)/32);
@@ -706,19 +714,32 @@ int main(int argc, char* argv[])
 		
 		test = SDL_GetTicks();
 		if(test % TIME_BTW_ANIMATIONS > 0){
-		liste_coord = pathfinding(pos_Wall, a, b, m, n);
-		liste_coord = deplacementFantome (liste_coord, &rcG1);
+			liste_coord = pathfinding(pos_Wall, a, b, m, n);
+			liste_coord = deplacementFantome (liste_coord, &rcG1);
+			liste_coord = pathfinding(pos_Wall, c, d, m, n);
+			liste_coord = deplacementFantome (liste_coord, &rcG2);
 		}
+		liste_coord = deplacementFantome (liste_coord, &rcG3);
 
 		//gameover = 1;
 
 		if (move) {
-			if ((( rcSprite.x == rcG1.x) && (rcSprite.y == rcG1.y))||(( rcSprite.x == rcG2.x) && (rcSprite.y == rcG2.y))||(( rcSprite.x == rcG3.x) && (rcSprite.y == rcG3.y))) {
+		 
+		  
+
+		  /* if ((( rcSprite.x == rcG1.x) && (rcSprite.y == rcG1.y))||(( rcSprite.x == rcG2.x) && (rcSprite.y == rcG2.y))||(( rcSprite.x == rcG3.x) && (rcSprite.y == rcG3.y))) {
+		                lives -= 1 ;
+			        rcBloc.x = (lives+1) * 32 + 8;
+				rcBloc.y =  32+8;
+				SDL_BlitSurface(bloc, NULL, screen, &rcBloc);
+				if (lives = 0){
 				printf("It's a fail ! Game Over ! Good luck for the next game... ");
 				ccl=ccl+1;
 				if (ccl >= 3){
+		  */
+
 					/* load screamer */
-	       				 temp = SDL_LoadBMP("images/scream.bmp");
+		  /*	 temp = SDL_LoadBMP("images/scream.bmp");
 					 gover = SDL_DisplayFormat(temp);
 		 			 SDL_FreeSurface(temp);
 
@@ -728,8 +749,12 @@ int main(int argc, char* argv[])
 	     	 			 SDL_Flip(screen);
 	      			       	 SDL_Delay(2500);
 				}
+				}
+				}
 
-			}
+		   */
+
+		  
 
 			move = 0;
 		}
@@ -751,13 +776,14 @@ int main(int argc, char* argv[])
 
 		/* draw the map */
 		SDL_BlitSurface(map,NULL,screen,&rcmap);
-
+        
 
 		//printf("m= %d n= %d \n", m,n);
 
 	for(i=0; i<NY ; i++){
 		for(j=0;j<NX;j++){
-
+		  
+		  	
 
 			if ( pos_Wall[i][j] == 1 ){
 				rcBloc.x = j * 32;
@@ -781,12 +807,19 @@ int main(int argc, char* argv[])
 				rcCandy.y = i * 32+8;
 				SDL_BlitSurface(candy, NULL, screen, &rcCandy);
 			}
+			if ( pos_Wall[i][j] == 6 ){
+				//printf("OK");
+				rcCandy2.x = j * 32+8;
+				rcCandy2.y = i * 32+8;
+				SDL_BlitSurface(candy2, NULL, screen, &rcCandy2);
+				 
+			}
 			//if ( pos_Wall[m][n] != 0 ){
 				//printf("PAS BON");
 				//rcSprite.y = 0;
 
 			//}
-			
+		
 
 			
 
@@ -811,16 +844,29 @@ int main(int argc, char* argv[])
 			}
 		}
 	}*/
+        
 
 
-	 
+
 	//printf("m= %d n= %d \n", m,n);
-	if ( pos_Wall[m][n] == 4 ){
+
+	if ( pos_Wall[m][n] == 4 || pos_Wall[m][n] == 6 ){
+		if (pos_Wall[m][n]==6) {
+			TIME_BTW_MOVEMENTS = 1;
+			cpt = cpt + 10;
+			lives += 1 ;
+			printf (" live= %d \n",lives);
+			/*	rcCandy2.x = lives*32+8;
+			rcCandy2.y = 32+8;
+			SDL_BlitSurface(candy2, NULL, screen, &rcCandy2); */
+	  
+			
+		}
 		cpt ++;
 		printf("cpt = %d\n",cpt);
 		pos_Wall[m][n]=0;
-		//musMix_PlayMusic(music, 1);
-		if (cpt >= 100 ) {
+		//mus Mix_PlayMusic(music, 1);
+		if (cpt >= 140 ) {
 			printf("VICTORY ");
 		}
 		//musif (cpt == 5 ) {
@@ -837,10 +883,11 @@ int main(int argc, char* argv[])
 		//mus}				
 	}
 	
-	/*if (pos_Wall[m][n] == pos_Wall[a][b]){
-	printf("lose");
-	lancer la musique (die)
-	}*/
+	if (pos_Wall[m][n] == pos_Wall[a][b]){
+		printf("GAMEOVER");
+		//gameover = 1;
+		//lancer la musique (die)
+	}
 				
 	
 	
@@ -858,8 +905,6 @@ int main(int argc, char* argv[])
 
 		/* draw the sprite */
 		SDL_BlitSurface(sprite, &rcSrc, screen, &rcSprite);
-
-
 
 		/* draw the GHOST 1 */
 		SDL_BlitSurface(g1, NULL, screen, &rcG1);
@@ -883,6 +928,7 @@ int main(int argc, char* argv[])
 	SDL_FreeSurface(wall2);
 	SDL_FreeSurface(bloc);
 	SDL_FreeSurface(candy);
+	SDL_FreeSurface(candy2);
 	SDL_FreeSurface(g1);
 	SDL_FreeSurface(g2);
 	SDL_FreeSurface(g3);
