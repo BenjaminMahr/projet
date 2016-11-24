@@ -165,8 +165,7 @@ liste_point pathfinding(int map[NY][NX],int dy, int dx, int fy, int fx)
 			fy--;
 			pNode = remplisPoint(fy,fx);
 			LF = cons(pNode,LF);
-			continue;
-        }
+			continue; }
 		if (fx>0 && dist[fy][fx-1] == d-1){
 			fx--;
 			pNode = remplisPoint(fy,fx);
@@ -812,6 +811,9 @@ int main()
 				rcCandy2.x = j * 32+8;
 				rcCandy2.y = i * 32+8;
 				SDL_BlitSurface(candy2, NULL, screen, &rcCandy2);
+			        
+				  
+			      
 				 
 			}
 			//if ( pos_Wall[m][n] != 0 ){
@@ -855,13 +857,15 @@ int main()
 			TIME_BTW_MOVEMENTS = 1;
 			cpt = cpt + 10;
 			lives += 1 ;
-			printf (" live= %d \n",lives);
-			/*	rcCandy2.x = lives*32+8;
+			printf (" live = %d \n",lives);
+
+			/*	rcCandy2.x = (lives-1)*32+8;
 			rcCandy2.y = 32+8;
 			SDL_BlitSurface(candy2, NULL, screen, &rcCandy2); */
 	  
 			
 		}
+
 		cpt ++;
 		printf("cpt = %d\n",cpt);
 		pos_Wall[m][n]=0;
@@ -884,7 +888,7 @@ int main()
 	}
 	
 	if (pos_Wall[m][n] == pos_Wall[a][b]){
-		printf("GAMEOVER");
+	  	printf("GAMEOVER");
 		//gameover = 1;
 		//lancer la musique (die)
 	}
@@ -943,3 +947,4 @@ int main()
 	return 0;
 }
 
+// il faut que je fasse l'image des règles du jeu à afficher avant le jeu avec un delay
