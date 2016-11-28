@@ -1,7 +1,7 @@
 SYSCONF_LINK = gcc
 CPPFLAGS     = `sdl-config --cflags` -std=c99 -Wall -Wextra -g 
 LDFLAGS      =
-LIBS         =  `sdl-config --libs` -lm 
+LIBS         =  `sdl-config --libs` -lm #-lSDL_mixer
 
 DESTDIR = ./
 TARGET  = pacman
@@ -24,9 +24,9 @@ clean:
 
 
 #sdlanim:	sdlanim.c
-#	 g++ sdlanim.c `sdl-config --cflags --libs`  -o sdlanim
+#	g++ -g sdlanim.c `sdl-config --cflags --libs`  -o sdlanim
 
-	#g++ sdlanim.c -lSDL_mixer -lm `sdl-config --cflags --libs`  -o sdlanim 
+#	g++ sdlanim.c -lSDL_mixer -lm `sdl-config --cflags --libs`  -o sdlanim 
 
 
 #clean:
