@@ -13,18 +13,15 @@ point remplisPoint(int col, int lig)
   return p;
 }
 
-
 liste_point l_vide (void)
 {
   return NULL;
 }
 
-
 bool est_vide(liste_point L)
 {
   return L == NULL;
 }
-
 
 point prem(liste_point L)
 {

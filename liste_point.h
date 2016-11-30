@@ -17,9 +17,7 @@ struct liste_point
 {
     point premier;
     liste_point reste;
-
 } ;
-
 
 liste_point l_vide () ;
 bool est_vide (liste_point L) ;
