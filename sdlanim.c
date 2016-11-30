@@ -5,9 +5,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 //#include <SDL/SDL_mixer.h>
-
-
 #include "liste_point.h"
+
 
 #define SCREEN_WIDTH  768
 #define SCREEN_HEIGHT 640
@@ -31,12 +30,11 @@ int moveRight, moveLeft, moveUp, moveDown; //gere le déplacement du pacman
 int wantRight, wantLeft, wantUp, wantDown;
 int currentTime, previousTime, fant_time; //gerer le temps entre les deplacements
 int currentTimeAnim, previousTimeAnim; //gerer le temps entre les animations
-float x,y;
 int time_game;
 int time_game_eat;
 
 /* source and destination rectangles */
-SDL_Rect rcSrc,rcWall,rcWall2, rcBloc, rcCoeur, rcSprite,rcG1, rcSG1, rcG2,rcG3, rcCandy, rcCandy2;
+SDL_Rect rcSrc,rcWall,rcWall2, rcBloc, rcCoeur, rcSprite,rcG1,rcSG1, rcG2,rcG3, rcCandy, rcCandy2;
 int i,j;
 
 //musMix_Music *music, *start, *scream, *pilule, *die, *siren;
@@ -54,13 +52,65 @@ void deplacement(SDL_Rect *fant, int x, int y){
 	fant->y += y;
 }
 
-void deplacementBleu(SDL_Rect *fant){
-	deplacement(fant,0,-64);
-	/*deplacement(fant,32,0);
-	deplacement(fant,0,-32);
-	deplacement(fant,-32,0);*/
+void deplacementBleu(int tab[NY][NX], SDL_Rect *fant, int *a, int *b){
+	if(*a == 0){
+		int temp;
+		temp = rand()%4;
+		switch(temp){
+			case 0: //gauche 
+				if(tab[fant->y/32][fant->x / 32 - 1] != 1 && tab[fant->y/32][fant->x / 32 -1] != 3)
+					*a = 1;
+				break;
+			case 1: // droite 
+				if(tab[fant->y/32][fant->x / 32 + 1] != 1 && tab[fant->y/32][fant->x / 32 +1] != 3)
+					*a = 2;
+				break;
+			case 2: // haut
+				if(tab[fant->y/32 - 1][fant->x/32] != 1 && tab[fant->y/32 - 1][fant->x/32] != 3)
+					*a = 3;
+				break;
+			case 3: // bas
+				if(tab[fant->y/32 + 1][fant->x/32] != 1 && tab[fant->y/32 + 1][fant->x/32] != 3)
+					*a = 4;
+				break;
+			default : // case 1 ou 3
+				break;
+		}
+		if(*a == 0)
+			return deplacementBleu(tab,fant,a,b);
+	}
+	
+	if(*a == 1){
+		deplacement(fant,-1,0);
+		*b += 1;
+	}
+	if(*a == 2){
+		deplacement(fant,-1,0);
+		*b += 1;
+	}
+	if(*a == 3){
+		deplacement(fant,0,1);
+		*b += 1;
+	}
+	if(*a == 4){
+		deplacement(fant,0,1);
+		*b += 1;
+	}
+	
+	if(*b == 32){
+		*b = 0;
+		*a = 0;
+	}
+	
 
+	/*deplacement(fant,0,-2*32);
+	deplacement(fant,4*32,0);
+	deplacement(fant,0,4*32);
+	deplacement(fant,6*-32,0);
+	deplacement(fant,0,-4*32);
+	deplacement(fant,2*32,0);*/
 }
+
 
 void deplacementFantomeBlanc(int tab[NY][NX],SDL_Rect *fant, int *a, int *b)
 {
@@ -550,10 +600,12 @@ int main()
 	int i,j;
 
 	int deplaSG1,deplaCG1,deplaSG2,deplaCG2,deplaSG3,deplaCG3;
-	liste_point liste_coord;
+	liste_point liste_coord_rouge,liste_coord_bleu,liste_coord_blanc ;
+
+	srand(time(NULL));
 
 	/* initialize SDL */
-
+	srand(time(NULL));
 	SDL_Init(SDL_INIT_VIDEO);
 
 	 /* initialize SDL */
@@ -578,7 +630,7 @@ int main()
 
 
 	/*test if the beginning of SDL is correct*/
-/*
+	/*
 	if (SDL_Init(SDL_INIT_VIDEO) == -1) // Démarrage de la SDL. Si erreur :
 	{
 	 fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError()); // Écriture de l'erreur
@@ -696,7 +748,7 @@ int main()
 	rcSprite.x = SCREEN_WIDTH/2;
 	rcSprite.y = SCREEN_HEIGHT/2 +32;
 
-	/* set G position */
+	/* set Ghost position */
 
 	
 	rcG1.x = SCREEN_WIDTH/2 -32;
@@ -704,11 +756,11 @@ int main()
 
 	
 	rcG2.x = SCREEN_WIDTH/2;
-	rcG2.y = SCREEN_HEIGHT/2 -31;
+	rcG2.y = SCREEN_HEIGHT/2-32;
 
 
-	rcG3.x = SCREEN_WIDTH/2+32;
-	rcG3.y = SCREEN_HEIGHT/2 -32;
+	rcG3.x = SCREEN_WIDTH/2 +32;
+	rcG3.y = SCREEN_HEIGHT/2-32;
 	
 
 	/* set animation frame */
@@ -728,7 +780,9 @@ int main()
 
 	gameover = 0;
 	
-	liste_coord = l_vide();
+	liste_coord_rouge = l_vide();
+	liste_coord_bleu = l_vide();
+	liste_coord_blanc = l_vide();
 
 	int pos_Wall[NY][NX]= {
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -755,6 +809,7 @@ int main()
 	int cpt=0;
 	int pac_y;
 	int pac_x;
+
 	int fant_rouge_x;
 	int fant_rouge_y;
 
@@ -765,15 +820,15 @@ int main()
 	int fant_blanc_x;
 	int fant_blanc_y;
 
-	/*int fant_blanc_x;
-	int fant_blanc_y;*/
-
 	int eat;
 	eat = 0;
 
-	int home;
-	home = 0;	
+	int home; /*_rouge, home_bleu, home_blanc;
+	home_rouge =0;
+	home_bleu =0;
+	home_blanc =0;*/
 
+	home =0;
 	int life = 4;
 
 	int compte_life = 0;
@@ -782,19 +837,24 @@ int main()
 	deplaCG1 = 0;
 	deplaSG2 = 0;
 	deplaCG2 = 0;
-
 	deplaSG3 = 0;
 	deplaCG3 = 0;
+
 	/*Mix_PlayMusic(start, 1);
 	SDL_BlitSurface(menu,NULL,screen,NULL);
   	SDL_Flip(screen);
   	SDL_Delay(5000);
 	*/
+	int g_rouge_back_home, g_bleu_back_home, g_blanc_back_home;
 
-	deplacementBleu(&rcG2);
+	g_rouge_back_home = 0;
+	g_bleu_back_home = 0;
+	g_blanc_back_home = 0;
+
+	//deplacementBleu(&rcG2);
 
 	SDL_SetVideoMode(768, 680, 32, SDL_HWSURFACE | SDL_FULLSCREEN);
-	
+
 	/*  Game Rules   */
 	temp   = SDL_LoadBMP("images/versionen.bmp");
 	gover = SDL_DisplayFormat(temp);
@@ -829,19 +889,45 @@ int main()
 
 		if((time_game == 5 || time_game % 5 == 0) && (eat == 0) && (home == 0)){
 
-			liste_coord = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, pac_y, pac_x);
-			liste_coord = deplacementFantomeR(liste_coord, &rcG1, &deplaSG1,&deplaCG1);
+			/*liste_coord_blanc = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x,  pac_y, pac_x );
+			liste_coord_blanc = deplacementFantomeR(liste_coord_blanc , &rcG3, &deplaSG3,&deplaCG3);*/
+			liste_coord_rouge = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, pac_y, pac_x);
+			liste_coord_rouge = deplacementFantomeR(liste_coord_rouge, &rcG1, &deplaSG1,&deplaCG1);	
+				
 
  			deplacementFantomeBlanc(pos_Wall,&rcG3, &deplaSG3,&deplaCG3);
+
+
+			deplacementBleu(pos_Wall,&rcG2,&deplaSG2,&deplaCG2);
 
 			/*deplacement(&rcG2,0,32);
 			deplacement(&rcG2,32,0);
 			deplacement(&rcG2,0,-32);
 			deplacement(&rcG2,-32,0);*/
 		}
+		if((time_game == 5 || time_game % 5 == 0) && (eat == 1)){
+			liste_coord_rouge = l_vide();
+			liste_coord_rouge = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 1, 1);
+			liste_coord_rouge = deplacementFantomeR(liste_coord_rouge, &rcG1, &deplaSG1,&deplaCG1);		
+		}
 
+		if((time_game == 5 || time_game % 5 == 0) && (eat == 1)){
+			liste_coord_blanc = l_vide();	
+			liste_coord_blanc = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 1, 10);
+			liste_coord_blanc = deplacementFantomeR(liste_coord_blanc, &rcG3, &deplaSG3,&deplaCG3);		
+		}
 
+		if((time_game == 5 || time_game % 5 == 0) && (g_rouge_back_home == 1)){
+			liste_coord_rouge = l_vide();
+			liste_coord_rouge = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 9, 11);
+			liste_coord_rouge = deplacementFantomeR(liste_coord_rouge, &rcG1, &deplaSG1,&deplaCG1);		
+		}
 
+		if((time_game == 5 || time_game % 5 == 0) && (g_blanc_back_home == 1)){
+			liste_coord_blanc = l_vide(); 
+			liste_coord_blanc = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 9, 13);
+			liste_coord_blanc = deplacementFantomeR(liste_coord_blanc, &rcG3, &deplaSG3,&deplaCG3);		
+		}
 
        		 HandleMovements(pos_Wall);
 		/* collide with edges of screen */
@@ -942,28 +1028,25 @@ int main()
 	}
 
 	if (pos_Wall[pac_y][pac_x] == 6) {
-
+	
 		eat = 1;
 		time_game_eat = time_game;
 		
-		pos_Wall[pac_y][pac_x] = 0;
+
 		cpt += 10;
-		//TIME_BTW_MOVEMENTS -= 4;
 		printf("cpt = %d\n",cpt);
 		//musMix_PlayMusic(siren, 2);
 		printf("Siren OK\n");
-
-		//liste_coord = l_vide();
-		//liste_coord = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 9, 11);
-		//liste_coord = deplacementFantomeR(liste_coord, &rcG1, &deplaSG1,&deplaCG1);
 		
 		/* ------------ durée de 5 ms pour les 2 fantomes ------------*/
-
 		temp = SDL_LoadBMP("images/g1_eat.bmp");
 		g1 = SDL_DisplayFormat(temp);
 		SDL_FreeSurface(temp);
-		liste_coord = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 1, 1);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG1, &deplaSG1,&deplaCG1);
+		
+		liste_coord_rouge = l_vide();
+		liste_coord_rouge = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 1, 1 );
+		liste_coord_rouge = deplacementFantomeR(liste_coord_rouge, &rcG1, &deplaSG1,&deplaCG1);			
+
 		colorkey = SDL_MapRGB(screen->format, 0,0,0);
 		SDL_SetColorKey(g1, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
 
@@ -971,36 +1054,45 @@ int main()
 		g2 = SDL_DisplayFormat(temp);
 		SDL_FreeSurface(temp);
 		colorkey = SDL_MapRGB(screen->format, 0,0,0);
-		SDL_SetColorKey(g2, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);		
-		liste_coord = pathfinding(pos_Wall, fant_bleu_y, fant_bleu_x, 5, 1);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG2, &deplaSG2,&deplaCG2);
-
+		SDL_SetColorKey(g2, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
 
 		temp = SDL_LoadBMP("images/g3_eat.bmp");
 		g3 = SDL_DisplayFormat(temp);
 		SDL_FreeSurface(temp);
 		colorkey = SDL_MapRGB(screen->format, 0,0,0);
 		SDL_SetColorKey(g3, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
-		liste_coord = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 10, 1);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG3, &deplaSG3,&deplaCG3);
+		
+		pos_Wall[pac_y][pac_x] = 0;
 	}
 
 
-	if (time_game - time_game_eat >= 6000){
+	if (time_game - time_game_eat >= 6000 && time_game_eat != 0 && g_rouge_back_home == 0){	// OK
+
 		eat = 0;
-		/************ G1 ******/
+
 		temp   = SDL_LoadBMP("images/g1_f.bmp");
 		g1 = SDL_DisplayFormat(temp);
 		SDL_FreeSurface(temp);
 		colorkey = SDL_MapRGB(screen->format, 0,0,0);
 		SDL_SetColorKey(g1, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
-		/************ G12******/
+		
+	}
+
+	if (time_game - time_game_eat >= 6000 && time_game_eat != 0 && g_bleu_back_home == 0){	// OK
+
+		eat = 0;
+
 		temp   = SDL_LoadBMP("images/g2_f.bmp");
 		g2 = SDL_DisplayFormat(temp);
 		SDL_FreeSurface(temp);
 		colorkey = SDL_MapRGB(screen->format, 0,0,0);
 		SDL_SetColorKey(g2, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
-		/************ G2 ******/
+		
+	}
+
+	if (time_game - time_game_eat >= 6000 && time_game_eat != 0 && g_blanc_back_home == 0){	// OK
+
+		eat = 0;
 		temp   = SDL_LoadBMP("images/g3_f.bmp");
 		g3 = SDL_DisplayFormat(temp);
 		SDL_FreeSurface(temp);
@@ -1008,18 +1100,26 @@ int main()
 		SDL_SetColorKey(g3, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
 	}
 
-	if (cpt == 146) {
+
+	if (cpt == 146 ) {
 		printf("VICTORY ");
 		SDL_BlitSurface(victory,NULL,screen,NULL);
   		SDL_Flip(screen);
   		SDL_Delay(5000);
-		cpt ++;
+		cpt = 0;
+	
+
 	}
+
+
+		
+        
 	
 	/********************** fantome rouge ************************/
-	if ((fant_rouge_y == pac_y && fant_rouge_x == pac_x) && (eat == 1 )){
+	if ((fant_rouge_y == pac_y && fant_rouge_x == pac_x) && (eat == 1 ) && (g_rouge_back_home == 0)){
 
-		home = 1;
+
+		g_rouge_back_home = 1;
 	
 		/* load eye */
 		temp = SDL_LoadBMP("images/eye_rouge.bmp");
@@ -1029,9 +1129,9 @@ int main()
 		SDL_SetColorKey(g1, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
 	}
 
-	if ((fant_bleu_y == pac_y && fant_bleu_x == pac_x) && (eat == 1 )){
+	if ((fant_bleu_y == pac_y && fant_bleu_x == pac_x) && (eat == 1 ) && (g_bleu_back_home == 0)){
 
-		home = 2;
+		g_bleu_back_home = 1;
 	
 		/* load eye */
 		temp = SDL_LoadBMP("images/eye_bleu.bmp");
@@ -1041,9 +1141,9 @@ int main()
 		SDL_SetColorKey(g2, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
 	}
 
-	if ((fant_blanc_y == pac_y && fant_blanc_x == pac_x) && (eat == 1 )){
+	if ((fant_blanc_y == pac_y && fant_blanc_x == pac_x) && (eat == 1 ) && (g_blanc_back_home == 0)){
 
-		home = 3;
+		g_blanc_back_home = 1;
 	
 		/* load eye */
 		temp = SDL_LoadBMP("images/eye_blanc.bmp");
@@ -1053,71 +1153,92 @@ int main()
 		SDL_SetColorKey(g3, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
 	}
 
-	/********************** fantome rouge ************************/
+
 	if ((fant_rouge_y != pac_y && fant_rouge_x != pac_x) && (eat == 1 ) && (home == 0 )){
 
-		liste_coord = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 10, 1);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG1, &deplaSG1,&deplaCG1);
+		liste_coord_rouge = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 1, 1);
+		liste_coord_rouge = deplacementFantomeR(liste_coord_rouge, &rcG1, &deplaSG1,&deplaCG1);
 	}
-	/********************** fantome bleu ************************/
+
 	if ((fant_bleu_y != pac_y && fant_bleu_x != pac_x) && (eat == 1 ) && (home == 0 )){
 
-		liste_coord = pathfinding(pos_Wall, fant_bleu_y, fant_bleu_x, 5, 1);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG2, &deplaSG2,&deplaCG2);
+		liste_coord_bleu = pathfinding(pos_Wall, fant_bleu_y, fant_bleu_x, 1, 1);
+		liste_coord_bleu = deplacementFantomeR(liste_coord_bleu, &rcG2, &deplaSG2,&deplaCG2);
 	}
-	/********************** fantome blanc ************************/
+
 	if ((fant_blanc_y != pac_y && fant_blanc_x != pac_x) && (eat == 1 ) && (home == 0 )){
 
-		liste_coord = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 1, 1);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG3, &deplaSG3,&deplaCG3);
+		liste_coord_blanc = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 1, 1);
+		liste_coord_blanc = deplacementFantomeR(liste_coord_blanc, &rcG3, &deplaSG3,&deplaCG3);
 	}
+	
 
 
 
-	/********************** fantome rouge ************************/
 	if ((home == 1) && ((fant_rouge_y == pac_y) && (fant_rouge_x == pac_x))){
-		liste_coord = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 9, 11);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG1, &deplaSG1,&deplaCG1);
+		liste_coord_rouge = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 9, 11);
+		liste_coord_rouge = deplacementFantomeR(liste_coord_rouge, &rcG1, &deplaSG1,&deplaCG1);
 	}
-	/********************** fantome BLEU ************************/
+
 	if ((home == 2) && ((fant_bleu_y == pac_y) && (fant_bleu_x == pac_x))){
-		liste_coord = pathfinding(pos_Wall, fant_bleu_y, fant_bleu_x, 9, 11);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG2, &deplaSG2,&deplaCG2);
+		liste_coord_bleu = pathfinding(pos_Wall, fant_bleu_y, fant_bleu_x, 9, 11);
+		liste_coord_bleu = deplacementFantomeR(liste_coord_bleu, &rcG2, &deplaSG2,&deplaCG2);
 	}
-	/********************** fantome blanc ************************/
+
 	if ((home == 3) && ((fant_blanc_y == pac_y) && (fant_blanc_x == pac_x))){
-		liste_coord = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 9, 11);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG3, &deplaSG3,&deplaCG3);
+		liste_coord_blanc = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 9, 11);
+		liste_coord_blanc = deplacementFantomeR(liste_coord_blanc, &rcG3, &deplaSG3,&deplaCG3);
 	}
 
 
 	if (home == 1){
-		liste_coord = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 9, 11);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG1, &deplaSG1,&deplaCG1);
+		liste_coord_rouge = pathfinding(pos_Wall, fant_rouge_y, fant_rouge_x, 9, 11);
+		liste_coord_rouge = deplacementFantomeR(liste_coord_rouge, &rcG1, &deplaSG1,&deplaCG1);
 	}
 	if (home == 2){
-		liste_coord = pathfinding(pos_Wall, fant_bleu_y, fant_bleu_x, 9, 12);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG2, &deplaSG2,&deplaCG2);
+		liste_coord_bleu = pathfinding(pos_Wall, fant_bleu_y, fant_bleu_x, 9, 12);
+		liste_coord_bleu = deplacementFantomeR(liste_coord_bleu, &rcG2, &deplaSG2,&deplaCG2);
 	}
 	if (home == 3){
-		liste_coord = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 9, 13);
-		liste_coord = deplacementFantomeR(liste_coord, &rcG3, &deplaSG3,&deplaCG3);
+		liste_coord_blanc = pathfinding(pos_Wall, fant_blanc_y, fant_blanc_x, 9, 13);
+		liste_coord_blanc = deplacementFantomeR(liste_coord_blanc, &rcG3, &deplaSG3,&deplaCG3);
 	}
 
-	if (fant_rouge_y == 9 && fant_rouge_x == 11){
-		home = 0;
-		eat = 0;
+	if (fant_rouge_y == 9 && fant_rouge_x == 11 && g_rouge_back_home ==1 ){
 
 		temp   = SDL_LoadBMP("images/g1_f.bmp");
 		g1 = SDL_DisplayFormat(temp);
 		SDL_FreeSurface(temp);
 		colorkey = SDL_MapRGB(screen->format, 0,0,0);
 		SDL_SetColorKey(g1, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
+
+		g_rouge_back_home =0;
 	}
+	if (fant_bleu_y == 9 && fant_bleu_x == 12 && g_bleu_back_home ==1 ){
+
+		temp   = SDL_LoadBMP("images/g2_f.bmp");
+		g2 = SDL_DisplayFormat(temp);
+		SDL_FreeSurface(temp);
+		colorkey = SDL_MapRGB(screen->format, 0,0,0);
+		SDL_SetColorKey(g2, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
+
+		g_bleu_back_home =0;
+	}
+	if (fant_blanc_y == 9 && fant_blanc_x == 13 && g_blanc_back_home ==1 ){
+
+		temp   = SDL_LoadBMP("images/g3_f.bmp");
+		g3 = SDL_DisplayFormat(temp);
+		SDL_FreeSurface(temp);
+		colorkey = SDL_MapRGB(screen->format, 0,0,0);
+		SDL_SetColorKey(g3, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
+
+		g_blanc_back_home =0;
+	}
+
+
 
 	if (fant_bleu_y == 9 && fant_bleu_x == 12){
 		home = 0;
-		eat = 0;
 
 		temp   = SDL_LoadBMP("images/g2_f.bmp");
 		g2 = SDL_DisplayFormat(temp);
@@ -1128,7 +1249,6 @@ int main()
 
 	if (fant_blanc_y == 9 && fant_blanc_x == 13) {
 		home = 0;
-		eat = 0;
 
 		temp   = SDL_LoadBMP("images/g3_f.bmp");
 		g3 = SDL_DisplayFormat(temp);
@@ -1202,7 +1322,9 @@ int main()
   		SDL_Flip(screen);
   		SDL_Delay(3000);
 
-		liste_coord = l_vide();
+		liste_coord_rouge = l_vide();
+		liste_coord_bleu = l_vide();
+		liste_coord_blanc = l_vide();
 
 		temp = SDL_LoadBMP("images/scream.bmp");
 		gover = SDL_DisplayFormat(temp);
