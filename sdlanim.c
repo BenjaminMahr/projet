@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-//#include <SDL/SDL_mixer.h>
+// #include <SDL/SDL_mixer.h>
 #include "liste_point.h"
 
 #define SCREEN_WIDTH  768
@@ -796,11 +796,21 @@ int main()
 	
 	int g_rouge_back_home, g_bleu_back_home, g_blanc_back_home;
 	int victorylvl1 = 0;
+	int victorylvl2 = 0;
 	g_rouge_back_home = 0;
 	g_bleu_back_home = 0;
 	g_blanc_back_home = 0;
 
-	
+	SDL_SetVideoMode(768, 680, 32, SDL_HWSURFACE | SDL_FULLSCREEN);
+
+	/*  Game Rules   */
+	temp   = SDL_LoadBMP("images/versionen.bmp");
+	gover = SDL_DisplayFormat(temp);
+	SDL_FreeSurface(temp);
+
+	SDL_BlitSurface(gover,NULL,screen,NULL);
+	SDL_Flip(screen);
+	SDL_Delay(5000);
 
 
 	 /*message pump */
@@ -857,6 +867,57 @@ int main()
 			rcG3.x = SCREEN_WIDTH/2 +32;
 			rcG3.y = SCREEN_HEIGHT/2-32;
 			victorylvl1=0;
+
+	}
+	
+		if (victorylvl2==1){
+	  		int pos_Wall2[NY][NX]= {
+	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+	{1,6,0,4,0,4,0,4,0,4,0,0,4,0,4,0,4,0,4,0,4,0,6,1},
+	{1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1},
+	{1,4,1,1,4,0,4,0,4,0,4,1,4,0,4,0,4,0,4,0,4,1,4,1},
+	{1,0,1,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1},
+	{1,4,1,1,4,1,4,0,4,0,4,0,4,0,4,0,4,0,4,1,4,1,4,1},
+	{1,0,1,1,0,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,0,1,0,1},
+	{1,4,1,1,4,1,4,1,0,4,0,0,4,0,4,0,0,1,0,1,4,1,4,1},
+	{1,0,1,1,0,1,0,1,4,1,4,1,1,5,1,1,4,1,4,1,0,1,0,1},
+	{1,1,1,1,4,1,4,1,0,0,0,1,7,8,9,1,0,0,0,1,4,1,4,1},
+	{1,0,1,1,0,4,0,1,4,1,4,1,5,5,5,1,4,1,4,1,0,4,0,1},
+	{1,4,1,1,4,1,4,1,0,1,0,1,1,1,1,1,0,1,0,1,4,1,4,1},
+	{1,0,1,1,0,1,0,1,4,1,4,1,0,1,0,1,4,1,4,1,0,1,0,1},
+	{1,4,1,1,4,1,4,1,0,4,0,4,0,4,0,4,0,4,0,1,4,1,4,1},
+	{1,0,1,1,0,1,0,1,4,1,1,1,1,1,1,1,1,1,4,1,0,1,0,1},
+	{1,4,1,1,4,1,4,1,0,4,0,4,0,4,0,4,0,4,0,1,4,1,4,1},
+	{1,0,1,1,0,4,0,1,1,1,1,1,1,0,1,1,1,1,1,1,0,0,0,1},
+	{1,4,1,1,4,1,0,1,1,1,1,1,1,0,1,1,1,1,1,1,4,1,4,1},
+	{1,0,6,0,0,1,4,0,4,0,4,0,4,0,4,0,4,0,4,0,0,1,0,1},
+	{1,1,10,10,10,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
+			int q,s =0;
+			for(q=0; q<NY ; q++){
+			  for(s=0;s<NX;s++){
+			    pos_Wall[q][s]=pos_Wall2[q][s];
+			  }
+			}
+			life = 3;
+			cpt = 0;
+			/* set sprite position */
+			rcSprite.x = SCREEN_WIDTH/2;
+			rcSprite.y = SCREEN_HEIGHT/2 +32;
+
+			/* set Ghost position */
+
+	
+			rcG1.x = SCREEN_WIDTH/2 -32;
+			rcG1.y = SCREEN_HEIGHT/2-32;
+
+	
+			rcG2.x = SCREEN_WIDTH/2;
+			rcG2.y = SCREEN_HEIGHT/2-32;
+
+
+			rcG3.x = SCREEN_WIDTH/2 +32;
+			rcG3.y = SCREEN_HEIGHT/2-32;
+			victorylvl2=0;
 
 	}
 
@@ -1099,6 +1160,19 @@ int main()
 				
 	}
 	if ((cpt == 65)&&(pos_Wall[9][0]==1)) {
+		printf("VICTORY ");
+		cpt =0 ;
+		victorylvl1=0;
+		victorylvl2=1;
+		SDL_BlitSurface(victory,NULL,screen,NULL);
+  		SDL_Flip(screen);
+  		SDL_Delay(5000);
+		
+	
+				
+	}
+
+	if ((cpt == 126)&&(pos_Wall[9][0]==1)&&(pos_Wall[9][1]==1)) {
 		printf("VICTORY ");
 		SDL_BlitSurface(victory,NULL,screen,NULL);
   		SDL_Flip(screen);
