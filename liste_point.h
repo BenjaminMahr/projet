@@ -5,6 +5,7 @@
 #ifndef LISTE_POINT_H_
 #define LISTE_POINT_H_
 
+
 typedef struct point point;
 struct point
 {

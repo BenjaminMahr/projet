@@ -2,6 +2,7 @@
 #include "liste_point.h"
 
 
+
 point remplisPoint(int col, int lig)
 {
   // Reservation de la place memoire neccessaire pour une cellule :
